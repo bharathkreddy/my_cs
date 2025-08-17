@@ -447,6 +447,8 @@ After the rebase completes:
 
 If you encounter conflicts, errors, or need help with specific steps (e.g., resolving conflicts or amending `11cabb7`), share the output or details, and I’ll guide you further!
 
+#### [Fixing a Commit with git commit --fixup and git rebase --autosquash](./git-fixup-autosquash-tutorial.markdown)
+
 ## 10. Cherry-Picking
 
 1. **Apply a single commit onto current HEAD**
@@ -482,7 +484,7 @@ git reset --hard HEAD~1
 git revert HEAD~1
 ```
 
-## 12. Stashing Work-in-Progress
+## 12. [Stashing Work-in-Progress](./git-stash-cheatsheet.markdown)
 
 1. **Save \& list stashes**
 

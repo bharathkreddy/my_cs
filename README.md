@@ -2,7 +2,8 @@
 
 ### Repos
 
-1. The missing semester
+1. [The missing semester](./the_missing_semester/readme.md)
+2.
 
 ### 1. Tooling & habbits
 
