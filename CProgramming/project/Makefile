@@ -1,6 +1,7 @@
 # Compiler and flags(Warnings all and -g: include debugging info)
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -fsanitize=address -Wall -g
+LDFLAGS = -fsanitize=address          # Add ASan for linking checks array out of bounds.
 
 # Directories
 SRC_DIR = src
@@ -20,7 +21,7 @@ all: $(EXECUTABLE)
 
 # Link objects into executable
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 # Compile source files into objects
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c

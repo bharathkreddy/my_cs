@@ -1,0 +1,18 @@
+Undefined symbols for architecture arm64:
+  "___asan_init", referenced from:
+      _asan.module_ctor in datatypes.o
+  "___asan_option_detect_stack_use_after_return", referenced from:
+      _main in datatypes.o
+  "___asan_register_image_globals", referenced from:
+      _asan.module_ctor in datatypes.o
+  "___asan_shadow_memory_dynamic_address", referenced from:
+      _main in datatypes.o
+  "___asan_stack_malloc_0", referenced from:
+      _main in datatypes.o
+  "___asan_unregister_image_globals", referenced from:
+      _asan.module_dtor in datatypes.o
+  "___asan_version_mismatch_check_apple_clang_1700", referenced from:
+      _asan.module_ctor in datatypes.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [build/datatypes] Error 1
