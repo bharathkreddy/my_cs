@@ -1,37 +1,23 @@
-# Compiler and flags(Warnings all and -g: include debugging info)
 CC = gcc
 CFLAGS = -fsanitize=address -Wall -g
-LDFLAGS = -fsanitize=address          # Add ASan for linking checks array out of bounds.
-
-# Directories
+LDFLAGS = -fsanitize=address
 SRC_DIR = src
 BUILD_DIR = build
 
-# Source files (wildcard path is a make function that expands to matching files)
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
+EXES = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%, $(SOURCES))
 
-# Object files (replace src/%.c with build/%.o)
-OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SOURCES))
+all: $(EXES)
 
-# Executable (assuming one main executable; name it after the project or main file)
-EXECUTABLE = $(BUILD_DIR)/datatypes
+# Each .c builds .o and links to executable of same name
+$(BUILD_DIR)/%: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 
-# Default target
-all: $(EXECUTABLE)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# Link objects into executable
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
-
-# Compile source files into objects
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Clean build artifacts
 clean:
 	rm -rf $(BUILD_DIR)
 
-# Phony targets (not actual files)
 .PHONY: all clean
 

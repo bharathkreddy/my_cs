@@ -16,3 +16,27 @@
    | `double`                         | `%lf`  | 64          | none                     | `3.14159`              |
    | `long double`                    | `%Lf`  | 128\*       | `l` or `L` (after value) | `3.14159L`             |
    | `_Bool` / `bool` (`<stdbool.h>`) | `%d`   | 8           | none                     | `1`, `0`               |
+
+
+
+
+   1. function pointers
+   2. advanced pointers
+   3. variable arguments to functions
+   4. dynamic linking
+   5. signals, forking, and inter-process communication
+   6. threading and concurrency
+   7. sockets
+   8. setjmp and longjmp for restoring state
+   9. memory management and fragmentation
+   10. making programs more portable
+   11. Interfacing with kernel modules (drivers and ioctls)
+   12. compiler and linker files
+   13. gdb and lldb advanced usecases. 
+   14. profiling and tracing tools (gprof, dtrace, strace)
+   15. memory debugging like valgrind
+   16. typedef
+   17. void* 's
+   18. static libraries and shared objects
+   19. macros
+   20. unions

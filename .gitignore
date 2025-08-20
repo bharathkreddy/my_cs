@@ -60,3 +60,21 @@ dkms.conf
 
 # debug information files
 *.dwo
+# Vim temporary files
+*~
+*.swp
+*.swo
+*.un~
+
+# More comprehensive vim patterns (covers all swap file variants)
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+
+# Vim session files
+Session.vim
+.netrwhist
+
+# Auto-generated tag files
+tags
