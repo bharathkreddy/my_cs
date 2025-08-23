@@ -22,6 +22,13 @@ void printBytes(void *arr, size_t size){
     printf("\n");
 }
 
+void findsum(int *arr, int len, int *sumArr){
+    for(int i=0; i<len; ++i){
+        printf("sumArr: %d, arr[i]: %d\n",*sumArr, arr[i]);
+        *sumArr += arr[i];
+    }
+}
+
 int main(void){
 
     int number = 10;
@@ -96,4 +103,12 @@ int main(void){
     printf("p1 points to value %d\n", *pointer1); // p1 -> y1
     printf("p2 points to value %d\n", *pointer2); // p2 -> y1
     printf("pp points to address %p\n", (void*)pp);
+
+    int arr4[5] = {10, 11, 9, 15, 5};
+    int sumArr = 0;
+    findsum(arr4, 5, &sumArr);
+    printf("sum of arr: %d\n", sumArr);
+
 }
+
+
