@@ -76,10 +76,88 @@ void initializeJournal(struct Journal *journal){
     }
 }
 
+void add_entry(struct Journal *journal){
+  char buffer[1024], line[100];
+  printf("Enter Text. Press '.' on a new line to exit.\n");
+  while(1){
+    fgets(line, sizeof(line), stdin);
+    if(strcmp(line, ".\n")==0) break;
+    strncat(buffer, line, strlen(line));
+  }
+  fseek(journal->file_pointer, 0, SEEK_END);
+  int pos = ftell(journal->file_pointer);
+  fwrite(&journal->next_entry_id, sizeof(int), 1, journal->file_pointer); 
+  journal->next_entry_id++;
+  fwrite(&pos, sizeof(int), 1, journal->file_pointer);
+  time_t nowTime = time(NULL);
+  fwrite(&nowTime, sizeof(time_t), 1 , journal->file_pointer);
+  int bufferSize = strlen(buffer);
+  fwrite(&bufferSize, sizeof(int), 1, journal->file_pointer);
+  fwrite(buffer, sizeof(char), bufferSize, journal->file_pointer);
+  fflush(journal->file_pointer);
+  journal->total_entries++;
+  
+  // update index
+  struct EntryIndex eid;
+  eid.entry_id = journal->next_entry_id - 1;
+  eid.file_position = pos;
+  eid.entry_time = nowTime;
+  eid.content_length = sizeof(buffer);
+  journal->index[journal->total_entries] = idx; 
+
+  // update header of file
+  fseek(journal->file_pointer, 0, SEEK_SET);
+  fwrite(&journal->total_entries, sizeof(int), 1, journal->file_pointer);
+  fflush(journal->file_pointer);
+
+  printf("Entry added as id: %d\n", eid.entry_id);
+
+}
+
+
+void read_entry(struct Journal *journal){
+    int journalID;
+    printf("Id of journal: ");
+    scanf("%d", &journalID);
+    int found  = -1;
+    for(int i =0; i<journal->total_entries; ++i){
+        if(journal->index[i].entry_id == journalID){
+            found = i;
+            break;
+        }
+    }
+    if(found==-1){
+        printf("no entry found.\n");
+    } else {
+        fseek(journal->file_pointer, journal->index[found].file_position + sizeof(int)+sizeof(time_t)+sizeof(int), SEEK_SET);
+        char *printEntry = malloc(sizeof(journal->index[found].content_length));
+        fread(printEntry, sizeof(journal->index[found].content_length), 1, journal->file_pointer);
+        print("%s", printEntry);
+    }
+}
+
+void read_all_entries(struct Journal *journal){
+      
+}
 
 int main(){
     struct Journal journal;
     initializeJournal(&journal);
     
+    int userSelection = -1;
+    while(1){
+        displayChoices(&userSelection);
+        if(userSelection == 0) break;
+        else if (userSelection == 1) add_entry(&journal);
+        else if (userSelection == 2) read_entry(&journal);
+        else if (userSelection == 3) read_all_entries(&journal);
+        else printf("Wong choice made. Try again.\n");
+    }
+
+    // cleanup
+    fclose(journal.file_pointer);
+    free(journal.index);
+    printf("Journal Closed.");
+
     return 0;
 }
