@@ -18,7 +18,7 @@ int main(void){
 
     Point pt = {1.1, 2.2};
     printf("Point pt(%.2f, %.2f)\n", pt.x, pt.y);
-    
+    printf("%d in binary is %0b\n\n", a, a);    
     for(int i = 0; i<5; i++) foo();
 
 }
