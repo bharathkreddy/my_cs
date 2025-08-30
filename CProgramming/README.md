@@ -80,3 +80,12 @@ clean:
 	rm -rf $(OBJ_DIR)/*.o $(TARGET)
 
 ```
+
+
+# PROJECTS
+1. Memory allocator + Library management system
+2. Text editor (vi clone)
+3. Shell 
+4. Multi-threaded HTTP server. + Chat messenger.
+5. compiler
+6. simple game (snake game)
