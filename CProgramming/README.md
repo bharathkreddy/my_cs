@@ -83,9 +83,12 @@ clean:
 
 
 # PROJECTS
-1. Memory allocator + Library management system
-2. Text editor (vi clone)
-3. Shell 
+1. [Playlist](./project/playlist)
+2. [Web Browser Simulation](./project/webbrowser/README.md) 
+3. [Hospital Emergency System](./project/hospitalEmergencySystem/README.md)
+4. [File System Explorer](./project/fileSystemExplorer/README.md)
+5. [Advanced Text Editor](./project/textEdit/README.md)
+6. Shell 
 4. Multi-threaded HTTP server. + Chat messenger.
 5. compiler
 6. simple game (snake game)
