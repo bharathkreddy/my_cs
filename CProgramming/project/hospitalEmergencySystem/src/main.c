@@ -2,12 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum Department{
-    xray,
-    consultation,
-    test,
-};
-
 struct Patient{
     char *name;
     int age;
@@ -26,6 +20,7 @@ struct Queue{
 };
 
 void addPatient(struct Queue *q){
+
     // allocate memory and initialize
     struct Node *node = malloc(sizeof(struct Node));
     if(!node){
@@ -51,10 +46,13 @@ void addPatient(struct Queue *q){
     while(getchar() != '\n'); //clear input buffer
 
     printf("Patient Gender: ");
-    scanf("%c", &node->patient.gender);
+    scanf(" %c", &node->patient.gender);  // space before %c skips whitespaces/newline.
     while(getchar() != '\n');
 
     node->nextNode = NULL;
+    if(q->tail){
+        q->tail->nextNode = node;
+    }
     q->tail = node;
     if(q->head == NULL) q->head = node;
     q->count++;
@@ -62,7 +60,27 @@ void addPatient(struct Queue *q){
 
 
 void displayPatients(struct Queue *q){
-    
+    struct Node *temp = q->head;
+    if(temp == NULL){
+        printf("Empty queue!");
+        return;
+    }
+    int cnt = q->count;
+    while(temp){
+        printf("%d. %s, %d, %c\n", cnt, temp->patient.name, temp->patient.age, temp->patient.gender);
+        temp = temp->nextNode;
+        --cnt;
+    };
+}
+
+void freeMemory(struct Queue *q){
+    struct Node *temp = q->head;
+    while(temp){
+        free(temp->patient.name);
+        struct Node *temp2 = temp->nextNode;
+        free(temp);
+        temp = temp2;
+    };
 }
 
 int main(void){
@@ -92,7 +110,7 @@ int main(void){
         printf("0. Exit the program.\n");
         printf("1. Add a patient.\n");
         printf("2. Display all patients.\n");
-        
+        printf("Choice: "); 
         scanf("%d", &userChoice);
         while(getchar() != '\n');
         if(userChoice == 0 ) break;
@@ -102,20 +120,37 @@ int main(void){
                 printf("1. Xray\n");
                 printf("2. Consultation\n");
                 printf("3. Tests\n");
+                printf("Choice: ");
                 scanf("%d", &userDept);
-                while(getchar() != '\n')
+                while(getchar() != '\n');
                 if(userDept == 1) {addPatient(xrayQ);}
                 else if (userDept == 2) {addPatient(consultQ);}
                 else if (userDept == 3) {addPatient(testQ);}
                 else {printf("Incorrect choice, taking back to main menu.\n");}
                 break;
             case 2:
-                //displayPatients();
+                printf("Which department?\n");
+                printf("1. Xray\n");
+                printf("2. Consultation\n");
+                printf("3. Tests\n");
+                printf("Choice: ");
+                scanf("%d", &userDept);
+                while(getchar() != '\n');
+                if(userDept == 1) {displayPatients(xrayQ);}
+                else if (userDept == 2) {displayPatients(consultQ);}
+                else if (userDept == 3) {displayPatients(testQ);}
+                else {printf("Incorrect choice, taking back to main menu.\n");}
                 break;
             default:
                 printf("Bad choice. Please choose again.\n");
                 break;
         }
-    }
+    };
+
+    // cleaning up memory
+    freeMemory(xrayQ);
+    freeMemory(consultQ);
+    freeMemory(testQ);
+
     return 0;
 }
