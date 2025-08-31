@@ -148,7 +148,7 @@ int main(void){
                 goBack(stack, backstack);
                 break;
             case 3:
-                printf("Go forward n steps\n");
+                goForward(stack, backstack);
                 break;
             case 4:
                 displayStack(stack, backstack);
