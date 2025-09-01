@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum Urgency{
+    low,
+    medium,
+    high,
+};
+
 struct Patient{
     char *name;
     int age;
     char gender;
+    enum Urgency urgency;
 };
 
 struct Node{
@@ -17,6 +24,7 @@ struct Queue{
     struct Node *head;
     struct Node *tail;
     int count;
+    char name;
 };
 
 void addPatient(struct Queue *q){
@@ -28,6 +36,7 @@ void addPatient(struct Queue *q){
         return;
     }
 
+    // creation of node
     char pname[100];
     printf("Patient Name: ");
     fgets(pname, sizeof(pname), stdin);
@@ -49,12 +58,34 @@ void addPatient(struct Queue *q){
     scanf(" %c", &node->patient.gender);  // space before %c skips whitespaces/newline.
     while(getchar() != '\n');
 
-    node->nextNode = NULL;
-    if(q->tail){
-        q->tail->nextNode = node;
-    }
-    q->tail = node;
-    if(q->head == NULL) q->head = node;
+    printf("Patient Urgency (0:low, 1:medium, 2:high: )");
+    scanf("%d", &node->patient.urgency);
+    while(getchar() != '\n');
+
+    // insertion of node
+    if(q->name == 'X'){
+        //priority insertion
+        if(q->head == NULL || node->patient.urgency < q->head->patient.urgency) {
+            // Insert at head
+            node->nextNode = q->head;
+            q->head = node;
+            if(q->tail == NULL) q->tail = node;
+        } else {
+            struct Node *curr = q->head;
+            while(curr->nextNode != NULL && curr->nextNode->patient.urgency <= node->patient.urgency) {
+                curr = curr->nextNode;
+            }
+            node->nextNode = curr->nextNode;
+            curr->nextNode = node;
+            if(node->nextNode == NULL) q->tail = node;
+        }
+    } else {
+        // standard queue insert at tail
+        node->nextNode = NULL;
+        if(q->tail) q->tail->nextNode = node;
+        if(q->head == NULL) q->head = node;
+        q->tail = node;
+    };
     q->count++;
 }
 
@@ -66,8 +97,9 @@ void displayPatients(struct Queue *q){
         return;
     }
     int cnt = q->count;
+    printf("\n===QUEUE %c===\n",q->name);
     while(temp){
-        printf("%d. %s, %d, %c\n", cnt, temp->patient.name, temp->patient.age, temp->patient.gender);
+        printf("%d. %s, %d, %c, Urgency: %d\n", cnt, temp->patient.name, temp->patient.age, temp->patient.gender, temp->patient.urgency);
         temp = temp->nextNode;
         --cnt;
     };
@@ -90,14 +122,17 @@ int main(void){
     xrayQ->head = NULL;
     xrayQ->tail = NULL;
     xrayQ->count = 0;
+    xrayQ->name = 'X';
     struct Queue *consultQ = malloc(sizeof(struct Queue));
     consultQ->head = NULL;
     consultQ->tail = NULL;
     consultQ->count = 0;
+    consultQ->name = 'C';
     struct Queue *testQ = malloc(sizeof(struct Queue));
     testQ->head = NULL;
     testQ->tail = NULL;
     testQ->count = 0;
+    testQ->name = 'T';
 
     // variable declaration
     int userChoice = -1;
