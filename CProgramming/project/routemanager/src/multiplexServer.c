@@ -88,11 +88,92 @@ get_max_fd(){
     return max;
 }
 
+struct Route{
+    char source[16];
+    char destination[16];
+    char interface[32];
+};
 
+struct Node{
+    struct Route route;
+    struct Node *next;
+};
+
+
+struct Routelist{
+    int count;
+    struct Node *head;
+    struct Node *current;
+};
+
+void 
+addroute(struct Routelist *routelist, char* source, char* destination, char* interface)
+{
+    struct Node *node = malloc(sizeof(struct Node));
+    if(!node){
+        printf("Memory allocation failed.\n");
+        return;
+    }
+    
+    strncpy(node->route.source, source, sizeof(node->route.source)-1);
+    node->route.source[sizeof(node->route.source) - 1] = '\0';
+
+    strncpy(node->route.destination, destination, sizeof(node->route.destination)-1);
+    node->route.destination[sizeof(node->route.destination) - 1] = '\0';
+
+    strncpy(node->route.interface, interface, sizeof(node->route.interface)-1);
+    node->route.interface[sizeof(node->route.interface) - 1] = '\0';
+
+    // insertion of node
+    node->next = NULL;
+    if(routelist->head == NULL){
+        routelist->head = node;
+        routelist->current = node;
+    } else {
+        routelist->current->next = node;
+        routelist->current = node;
+    }
+    routelist->count++;
+    printf("Route added, node count: %d\n", routelist->count);
+}
+
+void
+displayroute(struct Routelist *routelist, int comm_socket_fd)
+{
+    char replybuffer[BUFFER_SIZE * 8] = {0};
+    struct Node *temp; 
+    temp = routelist->head;
+    
+    while(temp){
+        char line[100];
+        snprintf(line, sizeof(line), "%s:%s:%s\n",
+                temp->route.source,
+                temp->route.destination,
+                temp->route.interface);
+        strncat(replybuffer, line, sizeof(replybuffer) - strlen(replybuffer)-1);
+        temp = temp->next;
+    };
+    if(routelist->count == 0){
+        strncpy(replybuffer, "no routes in table.\n", sizeof(replybuffer)-1);
+        replybuffer[sizeof(replybuffer)-1] = '\0';
+    }
+    int ret = write(comm_socket_fd, replybuffer, strlen(replybuffer));
+    if(ret == -1){
+        perror("Write error.");
+        exit(EXIT_FAILURE);
+    }
+}
 
 int
 main(int argc, char *argv[])
 {
+    //initialize routing table
+    struct Routelist routelist;
+    routelist.count = 0;
+    routelist.head = NULL;
+    routelist.current = NULL;
+
+
     struct sockaddr_un name;
 
 #if 0  
@@ -105,13 +186,16 @@ main(int argc, char *argv[])
     int ret;
     int connection_socket;
     int data_socket;
-    int result;
-    int data;
     char buffer[BUFFER_SIZE];
     fd_set readfds;
     int comm_socket_fd, i;
     intitiaze_monitor_fd_set();
     add_to_monitored_fd_set(0);
+    int choice;
+    char* token;
+    char* source;
+    char* destination;
+    char* interface;
 
     /*In case the program exited inadvertently on the last run,
      *remove the socket.
@@ -227,27 +311,61 @@ main(int argc, char *argv[])
                         exit(EXIT_FAILURE);
                     }
 
-                    /* Add received summand. */
-                    memcpy(&data, buffer, sizeof(int));
-                    if(data == 0) {
-                        /* Send result. */
-                        memset(buffer, 0, BUFFER_SIZE);
-                        sprintf(buffer, "Result = %d", client_result[i]);
-
-                        printf("sending final result back to client\n");
-                        ret = write(comm_socket_fd, buffer, BUFFER_SIZE);
-                        if (ret == -1) {
-                            perror("write");
-                            exit(EXIT_FAILURE);
-                        }
-
-                        /* Close socket. */
+                    if (ret == 0) {
+                        // Client disconnected gracefully
+                        printf("Client disconnected\n");
                         close(comm_socket_fd);
-                        client_result[i] = 0; 
                         remove_from_monitored_fd_set(comm_socket_fd);
-                        continue; /*go to select() and block*/
+                        continue;
                     }
-                    client_result[i] += data;
+
+                    // parse incomming data
+                    token = strtok(buffer, ":");
+                    choice = atoi(token);
+                    printf("Choice :%d\n", choice);
+                    switch(choice)
+                    {
+                        case 1:
+                            token = strtok(NULL, ":");
+                            if(!token){ printf("Missing Source Field.\n"); continue; }
+                            source = token;
+                            printf("source/mask: %s\n", token);
+
+                            token = strtok(NULL, ":");
+                            if(!token){ printf("Missing Destination Field.\n"); continue; }
+                            destination = token;
+                            printf("Destination: %s\n", token);
+
+                            token = strtok(NULL, ":");
+                            if(!token){ printf("Missing Interface Field.\n"); continue; }
+                            interface = token;
+                            printf("Interface: %s\n", token);
+
+                            addroute(&routelist, source, destination, interface);
+                            
+                            // acknowledging data received
+                            ret = write(comm_socket_fd, buffer, BUFFER_SIZE);
+                            if (ret == -1) 
+                            {
+                                perror("read");
+                                exit(EXIT_FAILURE);
+                            }
+                            break;
+
+                        case 2:
+                            // update route entry
+                            break;
+                        case 3:
+                            // delete route entry
+                            break;
+                        case 4:
+                            displayroute(&routelist, comm_socket_fd);
+                            break;
+
+                        default:
+                            printf("Unrecognised entry.\n");
+                    }
+
                 }
             }
         }
