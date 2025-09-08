@@ -39,6 +39,7 @@ main(void)
     printf("client socket connected.\n");
 
     /* write data */
+    printf("PID:%d\n\n\n", getpid());
     strncpy(buffer, "hello from brk.", sizeof(buffer)-1);
     ret = write(client_socket_fd, buffer, strlen(buffer)+1);
     if(ret == -1)
