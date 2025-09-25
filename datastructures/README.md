@@ -15,7 +15,8 @@
 
 # Types of Data Structures (running notes)
 1. Physical data structures: how data is laid out in memory
-    - Arrays
+    - [Arrays](./arrays)
+    - [Strings](/.strings)
     - Matrices
     - Linked Lists
 2. Logical data structures: How data is utilized
