@@ -17,7 +17,7 @@
 1. Physical data structures: how data is laid out in memory
     - [Arrays](./arrays)
     - [Strings](/.strings)
-    - Matrices
+    - Matrices(./matrices)
     - Linked Lists
 2. Logical data structures: How data is utilized
     - Stack

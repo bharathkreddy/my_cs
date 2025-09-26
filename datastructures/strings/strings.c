@@ -38,3 +38,19 @@ void reverseString(char a[])
     }
 }
 
+void findDuplicates(char a[])
+{
+    long int x = 0; // this is how we check for bytes on or off
+    long int h = 0;
+
+    for(int i = 0; a[i] != '\0'; ++i){
+        // first we will check if char is already present in h or not
+        x = 1; 
+        x = x << (a[i]-97);
+        if((x & h) > 0){
+            printf("Duplicate: %c\n", a[i]);
+        } else {
+            h = x | h;
+        }
+    }
+}

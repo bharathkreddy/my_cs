@@ -14,4 +14,6 @@ int main(void)
     reverseString(a);
     printf("Reversed String: %s\n", a);
     
+    char b[] = "bharath";
+    findDuplicates(b);
 }
