@@ -1,0 +1,33 @@
+
+===Stack created and pointer returned===
+Stack empty: true
+Element 1 pushed and now top at 0
+Element 3 pushed and now top at 1
+Element 5 pushed and now top at 2
+Element 7 pushed and now top at 3
+Element 9 pushed and now top at 4
+Stack full: true
+
+===Displaying the stack===
+1(0x603000001bd0) 3(0x603000001bd4) 5(0x603000001bd8) 7(0x603000001bdc) 9(0x603000001be0) 
+Index out of bounds. Stack top at: 4
+Peek element @index 9: -1
+
+Peek element @index 3: 7
+
+Poped: 9
+
+===Displaying the stack===
+1(0x603000001bd0) 3(0x603000001bd4) 5(0x603000001bd8) 7(0x603000001bdc) 
+
+Stack Top: 7
+Pushed 3
+Pushed 5
+Pushed 8
+Pushed 9
+Stack Empty: False
+Stack (top -> bottom): 9 8 5 3 
+Pop: 9
+Pop: 8
+Top element: 5
+Stack (top -> bottom): 5 3 
