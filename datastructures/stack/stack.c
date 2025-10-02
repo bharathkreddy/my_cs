@@ -146,6 +146,7 @@ void displayStackLL(struct StackLL *stack)
 {
     if(isEmptyLL(stack)){
         printf("Stack underflow.\n");
+        return;
     }
     printf("Stack (top -> bottom): ");
     struct Node *current = stack->top;
