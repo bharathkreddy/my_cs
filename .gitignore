@@ -78,3 +78,32 @@ Session.vim
 
 # Auto-generated tag files
 tags
+
+# books
+*.pdf
+*.epub
+*.mobi
+
+# Python files
+# Bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual envs
+.venv/
+env/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# pyenv
+.python-version
