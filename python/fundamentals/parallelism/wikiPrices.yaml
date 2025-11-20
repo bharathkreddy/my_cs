@@ -1,0 +1,15 @@
+queues:
+  - name: symbol_queue
+    description: contains symbols from s&p 500 scraped off wikipedia
+
+  - name: pg_queue
+    description: contains prices, timestamp and ticker of symbols, used by postgres workers to upload this data to supabase db
+
+workers:
+  - name: pgWorker
+    description: takes data from input queue and uploads to supabase db
+    input_queue: pg_queue
+
+  - name: yahoofiance
+
+  
