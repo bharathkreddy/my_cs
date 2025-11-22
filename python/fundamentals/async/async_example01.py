@@ -2,6 +2,16 @@ import requests
 from time import perf_counter, sleep
 import os
 from PIL import Image
+import asyncio
+import re
+from concurrent.futures import ProcessPoolExecutor
+
+## PROFILER ###
+# uv run -m scalene --html --outfile profile_report.html async_example01.py
+# output: 
+# Sequenctial download: 25.54s, Process: 18.42s
+# Parallel download: 2.80s, Process: 5.19s
+
 
 IMAGE_URLS = [
     "https://images.unsplash.com/photo-1516117172878-fd2c41f4a759?w=1920&h=1080&fit=crop",
@@ -21,7 +31,10 @@ IMAGE_URLS = [
 original_pics_dir = 'originalpics'
 process_pics_dir = 'afterpics'
 
-def download_single_image(url, save_path, file_name):
+def download_single_image(url):
+    match = re.search(r"(photo-\d+)", url)
+    file_name = f'{match.group(1)}.jpg'
+    save_path = original_pics_dir
     os.makedirs(save_path, exist_ok = True)
     r = requests.get(url)
     r.raise_for_status() 
@@ -29,60 +42,102 @@ def download_single_image(url, save_path, file_name):
         f.write(r.content)
     sleep(2)
 
-def process_single_image(source_file, destination_path):
-    for file in os.listdir(source_file):
-        with Image.open(os.path.join(source_file, file)) as img:
-            data = list(img.getdata())
-            width, height = img.size
-            new_data = []
 
-            for i in range(len(data)):
-                current_r, current_g, current_b = data[i]
+async def async_download():
+    tasks = [asyncio.create_task(asyncio.to_thread(download_single_image, image_url)) for image_url in IMAGE_URLS]
+    results = asyncio.gather(*tasks, return_exceptions=True)
+    return results
 
-                total_diff = 0
-                neighbor_count = 0
 
-                for dx, dy in [(1, 0), (0, 1)]:
-                    x = (i % width) + dx
-                    y = (i // width) + dy
+def process_single_image(image_path):
+    with Image.open(image_path) as img:
+        data = list(img.getdata())
+        width, height = img.size
+        new_data = []
 
-                    if 0 <= x < width and 0 <= y < height:
-                        neighbor_r, neighbor_g, neighbor_b = data[y * width + x]
-                        diff = (
-                            abs(current_r - neighbor_r)
-                            + abs(current_g - neighbor_g)
-                            + abs(current_b - neighbor_b)
-                        )
-                        total_diff += diff
-                        neighbor_count += 1
+        for i in range(len(data)):
+            current_r, current_g, current_b = data[i]
 
-                if neighbor_count > 0:
-                    edge_strength = total_diff // neighbor_count
-                    if edge_strength > 30:
-                        new_data.append((255, 255, 255))
-                    else:
-                        new_data.append((0, 0, 0))
-                else:
-                    new_data.append((0, 0, 0))
+            total_diff = 0
+            neighbor_count = 0
 
-            edge_img = Image.new("RGB", (width, height))
-            edge_img.putdata(new_data)
-            edge_img.save(os.path.join(process_pics_dir, file))
-        print(f"Processed {os.path.join(original_pics_dir, file)} and saved to {os.path.join(process_pics_dir, file)}")
+            for dx, dy in [(1, 0), (0, 1)]:
+                x = (i % width) + dx
+                y = (i // width) + dy
+
+                if 0 <= x < width and 0 <= y < height:
+                    neighbor_r, neighbor_g, neighbor_b = data[y * width + x]
+                    diff = (
+                        abs(current_r - neighbor_r)
+                        + abs(current_g - neighbor_g)
+                        + abs(current_b - neighbor_b)
+                    )
+                    total_diff += diff
+                    neighbor_count += 1
+
+            edge_strength = total_diff // neighbor_count if neighbor_count else 0
+            new_data.append((255,255,255) if edge_strength > 30 else (0,0,0))
+
+        edge_img = Image.new("RGB", (width, height))
+        edge_img.putdata(new_data)
+
+        save_path = "afterpics"
+        os.makedirs(save_path, exist_ok=True)
+
+        fname = os.path.basename(image_path)
+        edge_img.save(os.path.join(save_path, fname))
 
 
 if __name__ == '__main__':
+    for filename in os.listdir(original_pics_dir):
+        file_path = os.path.join(original_pics_dir, filename)
+        # Only remove files
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
     start_time_download = perf_counter()
-    for idx, url in enumerate(IMAGE_URLS):
-        download_single_image(url, original_pics_dir, f'file{idx}.jpg')
+    for url in IMAGE_URLS:
+        download_single_image(url) 
     end_time_download = perf_counter()
     
+    for filename in os.listdir(process_pics_dir):
+        file_path = os.path.join(process_pics_dir, filename)
+        # Only remove files
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
     start_time_process = perf_counter()
-    process_single_image(original_pics_dir, process_pics_dir)
+    for f in os.listdir(original_pics_dir):
+        process_single_image(os.path.join(original_pics_dir, f))
     end_time_process = perf_counter()
     
     print(f'Sequenctial download: {end_time_download - start_time_download:.2f}s, Process: {end_time_process - start_time_process:.2f}s\n')
 
-    ## PROFILER ###
-    # uv run -m scalene --html --outfile profile_report.html async_example01.py
+    
+    for filename in os.listdir(original_pics_dir):
+        file_path = os.path.join(original_pics_dir, filename)
+        # Only remove files
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    start_time_download = perf_counter()
+    results = asyncio.run(async_download()) 
+    end_time_download = perf_counter()
+
+    for filename in os.listdir(process_pics_dir):
+        file_path = os.path.join(process_pics_dir, filename)
+        # Only remove files
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    start_time_process = perf_counter()
+    
+    file_list = [os.path.join(original_pics_dir, f) for f in os.listdir(original_pics_dir)]
+
+    with ProcessPoolExecutor(max_workers=10) as ex:
+        ex.map(process_single_image, file_list)
+
+    end_time_process = perf_counter()
+    
+    print(f'Parallel download: {end_time_download - start_time_download:.2f}s, Process: {end_time_process - start_time_process:.2f}s\n')
     
